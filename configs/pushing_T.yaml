@@ -1,0 +1,180 @@
+experiment_name: ''
+wandb_id: 3
+task_name: pushing_T
+wandb: True
+debug: False
+data_root: data/
+seed: 0
+model: MLP
+defaults:  
+  - _self_  
+  - override hydra/hydra_logging: disabled  
+  - override hydra/job_logging: disabled  
+hydra:
+  output_subdir: null  
+  run:  
+    dir: .
+
+data:
+  state_dim: 8
+  action_dim: 2
+  obj_num: 1
+  stem_size: [30, 90] # [10,60]
+  bar_size: [120, 30] # [60,10]
+  pusher_size: 5
+  num_episodes: 32000
+  num_workers: 48 # 48
+  episode_length: 30
+  training: True
+  saving: True
+  visualizing: False
+  gif: False
+  scale: 100 # normalize the data, (x,y)/scale
+  window_size: 500
+  augment: False
+  img_state: False
+  img_size: 128
+  enable_hnm: True
+  weight_factor: 1 # weight the data in the loss function, exp(w*diff)
+  weight_ub: 16 # exp(w*diff)<=weight_ub
+  hn_th: 0.03 # pick error>=hn_th
+
+real_exp:
+  enable: False
+  object_path_list: ['real_exp_new/object/t.obj']
+  block_color_list: [[0.80, 0.35, 0.15]] # HSV list # [[0,0.14,0.1]] # [[0,0,0]], [[0.24, 0.04, 0.6]] 
+  exp_id: 0
+  overwrite: False
+  sim_to_real_scale: 1000
+  time_limit: 30
+
+train:
+  include_com: false
+  train_valid_ratio: 0.9
+  architecture: [128, 256, 256, 128]
+  n_history: 1
+  n_rollout: 6
+  n_rollout_valid: 6
+  step_weight_ub: 2
+  noise: 0.003 # std of the Gaussian noise to training data
+  robust: false
+  robust_settings:
+    epsilon: 0.002
+    alpha: 0.001
+    iters: 3
+  lr: 0.001
+  lr_params:
+    adam_beta1: 0.9
+  lr_scheduler:
+    type: "CosineAnnealingLR"
+    enabled: True
+  # lr_scheduler:
+  #   type: "ReduceLROnPlateau"
+  #   enabled: false
+  #   factor: 0.3
+  #   patience: 3
+  #   threshold: 1.0e-4
+  #   threshold_mode: 'rel'
+  #   cooldown: 0
+  #   min_lr: 0
+  #   eps: 1e-08
+  n_epoch_initial: 6
+  batch_size: 256
+  num_workers: 5 # 8
+  lam_l1_reg: 0 # 2.0e-4 # l1 regularization
+  use_ibp_loss: False
+  lam_ibp_loss: 2.0e-6
+  shape_loss: 0.05
+  online_training:
+    enable: False
+    sample_data_per_epoch: 2 # every epoch, sample data 
+    num_episodes: 3000
+  compute_bounds: False
+
+planning:
+  # reload_json_path: "exp/pushing_T/0405_pushing_T/H0153_use_augdata,online_training=0,sample_epoch=1,bs=1024,epochs=5/09_10_planning_pushing_T_id2/crown_mppi/experiment_results.json"
+  plot_only: False
+  horizon: 20
+  n_act_step: 20
+  n_sim_step: 20
+  num_test: 1
+  open_loop: True
+  action_bound: 0.25
+  timeout: 60
+  device: "cuda"
+  reload: False
+  method_types: ['MPPI', 'CROWN']
+  # method_types: ['CROWN']
+  # force_method_types: ['CROWN']
+  force_method_types: []
+  abcrown: crown_configs/pushing_T/planning.yaml
+  abcrown_verbose: false # to get feasible solution in every iteration
+  use_empirical_bounds: false
+  enable_ub: true
+  model: 'before'
+  only_final_cost: True
+  fixed_horizon: false
+  use_prev_sol: false
+  warm_start_from_sampling: true
+  warm_start_method: 'MPPI'
+  cost_norm: 1 # 1 or 2
+  penalty_type: 3 # 0: no penalty, 1: penalty on pusher, 2: penalty on object, 3: penalty on both
+  obs_pos_list: [[2.5,2.5]]
+  obs_size_list: [0.3,0.3]
+  obs_type: 'circle'
+  obs_enlarge: 0.4 # enlarge the obstacle in long-horizon planning
+  mppi:
+    n_sample: 160000 # 200000
+    n_update_iter: 15 # 50
+    reward_weight: 20
+    noise_level: 0.15
+    noise_type: 'normal'
+  cem:
+    n_sample: 160000
+    n_update_iter: 15
+    jitter_factor: 0.001
+    elite_ratio: 0.00001
+    min_n_elites: 10
+    # decentCEM
+    n_agents: 20
+  gd:
+    n_sample: 320000
+    n_update_iter: 50
+    lr: 0.001
+    noise_type: 'random'
+    n_restart_round: 2
+  model_path: None
+  predefined_planning_path: None
+  hierarchical: 
+    enable: True
+    horizon: 3 # to be modified in code
+    n_act_step: 1
+    only_final_cost: False
+    refer_pos: false
+    action_bound: 0.1
+    # mppi settings
+    n_sample: 50000
+    n_update_iter: 8
+    reward_weight: 20
+    noise_level: 0.07
+    subgoal_interval: 1
+    num_subgoal: 20
+    buffer_round: 0
+    reach_threshold: 0.3 # 0.4
+
+  # only used for MIP
+  mip:
+    use_cut: False
+    use_cut_threshold: 1.0e-4
+    verify_bounds: False
+    prune_weights: False
+    prune_weights_threshold: 1.0e-6
+    bounds_extension: 1 # increase the bound size during planning, positive value
+    timeout: 300
+
+visualize:
+  exp_dir: "closed_loop_planning_6_30"
+
+training: True # if not training, will disable Gumbel
+log:
+  log_per_iter: 5

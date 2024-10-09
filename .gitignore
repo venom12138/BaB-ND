@@ -1,0 +1,71 @@
+# *.gif
+# *.pdf
+*.png
+*.jpg
+*.mp4
+*.avi
+*.pkl
+*.DS_Store
+__MACOSX
+**/__pycache__/
+*.pyc
+experiments
+tensorboard
+data
+crown_configs/*/output/
+crown_configs/*/vnnlib/
+crown_configs/*/onnx/
+crown_configs/*/model/
+crown_configs/*/planning.yaml
+wandb
+output
+outputs
+out.txt
+*.compiled
+out_adv_example.txt
+step_*.vnnlib
+# *.json
+tmp/
+output/*.zip
+.vscode
+.hydra
+*.zip
+*.npy
+*.onnx
+test*.py
+trace_graph.txt
+*.txts
+A_plot*
+*planning_config*.yaml
+test.png
+**/.vscode/
+**/.github/
+/results/
+# **.sh
+/data*/
+debug_*
+/unused/
+exp
+# *.pth
+tmp.py
+# *.txt
+*.html
+*.gz
+*.pickle
+*.stl
+# *.txt
+# **/*.pth
+**/*.jpg
+**/*.png
+/crown_configs/*/config/
+/imgs/
+/vis_real_world/
+**/weights/
+*.svg
+# /vis**/
+/PyFleX/
+**/build/**
+**.so 
+recording
+test/
+result*/

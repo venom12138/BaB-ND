@@ -1,0 +1,59 @@
+general:
+  root_path: ANONYMOUS_DIR/neural-dynamics-crown/crown_configs/gnn_test/
+  enable_incomplete_verification: false
+  device: cuda
+  sparse_interm: true
+model:
+  name: 'Customized("wrapped_model_gnn.py", "wrapped_model_gnn", model_path="ANONYMOUS_DIR/neural-dynamics-crown/crown_configs/gnn_test/latest_model.pth",
+    model_config={''state_dim'': 12, ''action_dim'': 4, ''horizon'': 1, ''n_history'':
+    1, ''n_particle'': 6, ''n_relation'': 36, ''num_classes'': 2, ''cost_norm'': 1,
+    ''only_final_cost'': True, ''device'': ''cuda''})'
+  input_shape:
+  - 1
+  - 1
+  - 4
+specification:
+  vnnlib_path: vnnlib/test.vnnlib
+solver:
+  batch_size: 512
+  bound_prop_method: crown
+bab:
+  override_timeout: 180
+  max_iterations: 1
+  sort_domain_interval: 1
+  branching:
+    method: sb
+    candidates: 3
+    input_split:
+      enable: true
+      update_rhs_with_attack: true
+      sb_coeff_thresh: 0.01
+      softmax_temperature: 0.01
+attack:
+  pgd_order: skip
+  pgd_early_stop: false
+  pgd_lr_decay: 0.5
+  pgd_lr_decay_mode: auto
+  pgd_lr_target: 0.01
+  input_split_check_adv:
+    max_num_domains: 256
+    pgd_steps: 8
+    pgd_restarts: 400
+find_feasible_solution:
+  enable: true
+  save_solution: true
+  show_solution: true
+  report_per_iter: true
+  save_solution_path: ANONYMOUS_DIR/box_pushing/crown_configs/pushing_T/output/crown_sol_18_11_32_5_0_10.txt
+  save_bab_path: ANONYMOUS_DIR/box_pushing/crown_configs/pushing_T/output/crown_bab_18_11_32_5_0_10.pkl
+  early_stop_patience: 200
+  use_upper_bound: true
+  warm_start: true
+  preload_path: ANONYMOUS_DIR/box_pushing/crown_configs/pushing_T/output/crown_warmstart_18_11_32_5_0_10.pt
+  pre_pgd_restarts: 10000
+  pre_pgd_steps: 8
+  sample_with_solution: true
+  bound_pgd_steps: 4
+  bound_pgd_restarts: 10000
+  bound_pgd_lr_decay: 0.5
+  bound_pgd_interval: 1

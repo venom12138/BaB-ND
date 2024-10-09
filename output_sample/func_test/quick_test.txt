@@ -1,0 +1,12 @@
+--- Test Results ---
+Seed | input_dim | method | opt_value | num_opt | runtime
+0    | 100       | GD     | -107.8837 | 31      | 11.03
+0    | 100       | MPPI   | -159.1416 | 22      | 10.18
+0    | 100       | CEM    | -160.3251 | 10      | 10.32
+0    | 100       | Ours   | -197.9956 | 99      | 3.99
+0    | 100       | f^*    | -198.0300 | 100     | ----
+--- End of Test Results ---
+opt_value: the best value of f(u) found, ~= -1.9803*input_dim. The smaller the better
+num_opt: the dimension that the best solution found hitting optima, = input_dim. The larger the better
+f(u) in 1D: u^*: -0.06270600000000004, f^*: -1.980300190461462
+Visualization of f(u) in 1D: /home/keyi/ICLR_release/tasks/func_test/output/function_plot_1d.pdf

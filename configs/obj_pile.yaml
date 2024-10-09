@@ -1,0 +1,151 @@
+task_name: obj_pile
+wandb: True
+data_root: data/
+seed: 303049
+model: PyG_GNN
+model_path: ""
+short_push: False
+
+data:
+  state_dim: 12 # ${data.obj_num}*2
+  action_dim: 4 # start_x, start_y, len_x, len_y
+  obj_size: 15 # 30
+  pusher_size: [45, 3.5] # [90, 5] 
+  num_episodes: 32000 # 64000
+  num_workers: 10
+  episode_length: 12
+  training: True # determine the random seed to generate data
+  saving: True # save the data
+  visualizing: False # visualize the simulation
+  gif: False # generate gif
+  scale: 100 # normalize the data, (x,y)/scale
+  window_size: 400 #800
+  enable_hnm: True
+  weight_factor: 1 # weight the data in the loss function, exp(w*diff)
+  weight_ub: 16 # exp(w*diff)<=weight_ub
+  hn_th: 0.03 # pick error>=hn_th
+  env_type: 'plain' # 'plain' or 'bin'
+  classes: 2 # number of classes for the classification task
+  push_single: false
+
+real_exp:
+  enable: False
+  exp_id: 0
+  overwrite: False
+  sim_to_real_scale: 1000
+  time_limit: 30
+
+train:
+  train_valid_ratio: 0.9
+  model_param:
+    neighbor_radius: 0.1
+    nf_particle: 64 # 128
+    nf_relation: 64 # 128
+    layers: 1
+  architecture: [96, 192, 192, 96]
+  n_history: 1
+  n_rollout: 6
+  n_rollout_valid: 6
+  noise: 0.005 # std of the Gaussian noise to training data
+  robust: false
+  robust_settings:
+    epsilon: 0.002
+    alpha: 0.001
+    iters: 3
+  lr: 0.001
+  lr_params:
+    adam_beta1: 0.9
+  lr_scheduler:
+    type: "CosineAnnealingLR"
+    enabled: True
+  n_epoch_initial: 20
+  batch_size: 256
+  num_workers: 8
+  lam_l1_reg: 1.0e-3 # 2.0e-4 # l1 regularization
+  interval_loss_ratio: 0
+  online_training:
+    enable: True
+    sample_data_per_epoch: 2 # every epoch, sample data 
+    num_episodes: 3000
+planning:
+  plot_only: False
+  horizon: 1
+  n_act_step: 1 # number of steps to act after each planning call
+  n_sim_step: 12
+  num_test: 1
+  open_loop: False
+  action_bound: 1.0 # 2.0
+  pusher_lo: 20.0 # 50.0
+  pusher_hi: 350.0 # 750.0
+  # action_bound: 1.0
+  # pusher_lo: 20.0
+  # pusher_hi: 370.0 # 750.0
+  timeout: 3000
+  device: "cuda"
+  reload: True
+  method_types: ['MPPI']
+  # force_method_types: ['CROWN']
+  force_method_types: []
+  # abcrown: crown_configs/obj_pile/planning.yaml
+  abcrown_verbose: true # to get feasible solution in every iteration, only enable when open loop
+  use_empirical_bounds: false
+  enable_ub: true
+  only_final_cost: True
+  fixed_horizon: false
+  use_prev_sol: false
+  warm_start_from_sampling: true
+  warm_start_method: 'CEM'
+  cost_norm: 1
+  mppi:
+    n_sample: 32000
+    n_update_iter: 15
+    reward_weight: 100
+    noise_level: 0.2 # 'auto'
+    noise_type: 'normal'
+  cem:
+    n_sample: 32000
+    n_update_iter: 8
+    jitter_factor: 0.001
+    elite_ratio: 0.00001
+    min_n_elites: 10
+    # decentCEM
+    n_agents: 10
+  gd:
+    n_sample: 50000
+    n_update_iter: 8
+    lr: 0.001
+    noise_type: 'random'
+    n_restart_round: 4
+  model_path: None
+  cost_mode: 'target'
+  cost_weight: 2.0
+  fix_others: False
+  gather_data: False
+  forbidden: False
+  forbidden_radius: 0.225
+  far_factor: 10
+  predefined_planning_path: None
+  hierarchical: 
+    enable: True
+    horizon: 1 # to be modified in code
+    n_act_step: 1
+    only_final_cost: False
+    refer_pos: false
+    action_bound: 1
+    # mppi settings
+    n_sample: 32000
+    n_update_iter: 8
+    reward_weight: 50
+    noise_level: 0.2
+    subgoal_interval: 1
+    num_subgoal: 5
+    buffer_round: 2
+    reach_threshold: 1
+    success_threshold: 0.5
+
+visualize:
+  exp_dir: "closed_loop_planning_6_30"
+
+training: True # if not training, will disable Gumbel
+log:
+  log_per_iter: 200

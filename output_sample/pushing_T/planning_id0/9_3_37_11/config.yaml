@@ -1,0 +1,112 @@
+experiment_name: ''
+wandb_id: 3
+task_name: pushing_T
+wandb: true
+debug: false
+data_root: data/
+seed: 0
+model: MLP
+data:
+  state_dim: 8
+  action_dim: 2
+  obj_num: 1
+  stem_size: [30, 90]
+  bar_size: [120, 30]
+  pusher_size: 5
+  num_episodes: 32000
+  num_workers: 48
+  episode_length: 30
+  training: true
+  saving: true
+  visualizing: false
+  gif: false
+  scale: 100
+  window_size: 500
+  augment: false
+  img_state: false
+  img_size: 128
+  enable_hnm: true
+  weight_factor: 1
+  weight_ub: 16
+  hn_th: 0.03
+real_exp:
+  enable: false
+  object_path_list: [real_exp_new/object/t.obj]
+  block_color_list:
+  - [0.8, 0.35, 0.15]
+  exp_id: 0
+  overwrite: false
+  sim_to_real_scale: 1000
+  time_limit: 30
+train:
+  include_com: false
+  train_valid_ratio: 0.9
+  architecture: [128, 256, 256, 128]
+  n_history: 1
+  n_rollout: 6
+  n_rollout_valid: 6
+  step_weight_ub: 2
+  noise: 0.003
+  robust: false
+  robust_settings: {epsilon: 0.002, alpha: 0.001, iters: 3}
+  lr: 0.001
+  lr_params: {adam_beta1: 0.9}
+  lr_scheduler: {type: CosineAnnealingLR, enabled: true}
+  n_epoch_initial: 6
+  batch_size: 256
+  num_workers: 5
+  lam_l1_reg: 0
+  use_ibp_loss: false
+  lam_ibp_loss: 2.0e-06
+  shape_loss: 0.05
+  online_training: {enable: false, sample_data_per_epoch: 2, num_episodes: 3000}
+  compute_bounds: false
+planning:
+  plot_only: false
+  horizon: 20
+  n_act_step: 20
+  n_sim_step: 20
+  num_test: 1
+  open_loop: false
+  action_bound: 0.25
+  timeout: 60
+  device: cuda
+  reload: false
+  method_types: [MPPI_BF, DecentCEM, CROWN]
+  force_method_types: []
+  abcrown: crown_configs/pushing_T/planning.yaml
+  abcrown_verbose: false
+  use_empirical_bounds: false
+  enable_ub: true
+  model: before
+  only_final_cost: true
+  fixed_horizon: false
+  use_prev_sol: false
+  warm_start_from_sampling: true
+  warm_start_method: MPPI
+  cost_norm: 1
+  penalty_type: 3
+  obs_pos_list:
+  - [1.1, 2.5]
+  - [3.05, 2.75]
+  obs_size_list: [0.3, 0.3]
+  obs_type: circle
+  obs_enlarge: 0.4
+  mppi: {n_sample: 160000, n_update_iter: 15, reward_weight: 20, noise_level: 0.15,
+    noise_type: normal}
+  cem: {n_sample: 160000, n_update_iter: 15, jitter_factor: 0.001, elite_ratio: 1.0e-05,
+    min_n_elites: 10, n_agents: 20}
+  gd: {n_sample: 320000, n_update_iter: 50, lr: 0.001, noise_type: random, n_restart_round: 2}
+  model_path: ckpts/pushing_T/dynamics_model.pth
+  predefined_planning_path: None
+  hierarchical: {enable: true, horizon: 3, n_act_step: 1, only_final_cost: false,
+    refer_pos: false, action_bound: 0.1, n_sample: 50000, n_update_iter: 8, reward_weight: 20,
+    noise_level: 0.07, subgoal_interval: 1, num_subgoal: 20, buffer_round: 0, reach_threshold: 0.3}
+  mip: {use_cut: false, use_cut_threshold: 0.0001, verify_bounds: false, prune_weights: false,
+    prune_weights_threshold: 1.0e-06, bounds_extension: 1, timeout: 300}
+  test_id: 0
+visualize: {exp_dir: closed_loop_planning_6_30}
+training: false
+log: {log_per_iter: 5}
+output_task_name: planning_id0
+experiment_folder: output/pushing_T/planning_id0/9_3_37_11

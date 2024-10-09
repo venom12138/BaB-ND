@@ -1,0 +1,4 @@
+method_type | planned_cost | final_cost | runtime
+MPPI_BF     | 3.9919       | 4.3958     | 24.9830
+DecentCEM   | 2.6355       | 2.7775     | 20.0884
+CROWN       | 0.6609       | 0.6095     | 18.8165

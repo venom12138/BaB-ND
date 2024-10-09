@@ -1,0 +1,65 @@
+general:
+  root_path: ANONYMOUS_DIR/box_pushing/crown_configs/pushing_T/
+  enable_incomplete_verification: false
+  device: cuda
+  sparse_interm: true
+model:
+  name: Customized("wrapped_model.py", "wrapped_model", model_path="ANONYMOUS_DIR/box_pushing/experiments/test_pushing_T_18_11_32/models/compression_round_0_model.pth",
+    setting=(8, 2, 1, 6))
+  input_shape:
+  - 1
+  - 12
+specification:
+  vnnlib_path: vnnlib/_18_11_32_5_0_10.vnnlib
+solver:
+  batch_size: 1024
+  bound_prop_method: crown
+  # alpha-crown:
+  #   enable: false
+  #   lr_alpha: 0.5
+  #   iteration: 5
+  #   lr_decay: 0.75
+bab:
+  override_timeout: 180
+  max_iterations: 15
+  sort_domain_interval: 1
+  branching:
+    method: sb
+    candidates: 3
+    input_split:
+      enable: true
+      update_rhs_with_attack: true
+      sb_coeff_thresh: 0.01
+      softmax_temperature: 0.01
+      branching_heuristic: Customized("custom_branching_heuristics", "customized_input_split_branching")
+attack:
+  pgd_order: skip
+  pgd_early_stop: false
+  pgd_lr_decay: 0.5 # used when mode is not 'auto'
+  pgd_lr_decay_mode: 'auto'
+  pgd_lr_target: 0.01
+  pgd_auto_factor: 50
+  input_split_check_adv:
+    max_num_domains: 512
+    pgd_steps: 8
+    pgd_restarts: 1000
+find_feasible_solution:
+  enable: true
+  save_solution: true
+  show_solution: true
+  report_per_iter: true
+  save_solution_path: ANONYMOUS_DIR/box_pushing/crown_configs/pushing_T/output/crown_sol_18_11_32_5_0_10.txt
+  save_bab_path: ANONYMOUS_DIR/box_pushing/crown_configs/pushing_T/output/crown_bab_18_11_32_5_0_10.pkl
+  early_stop_patience: 200
+  use_upper_bound: true
+  warm_start: true
+  preload_path: ANONYMOUS_DIR/box_pushing/crown_configs/pushing_T/output/crown_warmstart_18_11_32_5_0_10.pt
+  pre_pgd_restarts: 200000
+  pre_pgd_steps: 8
+  sample_with_solution: true
+  bound_pgd_steps: 2
+  bound_pgd_restarts: 100000
+  bound_pgd_lr_decay: 0.5
+  bound_pgd_auto_factor: 10
+  bound_pgd_interval: 1
+  reject_bad_in_bound: true

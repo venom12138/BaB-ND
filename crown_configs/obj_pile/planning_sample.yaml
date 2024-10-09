@@ -1,0 +1,109 @@
+general:
+  root_path: ANONYMOUS_DIR/box_pushing/crown_configs/pushing_T/
+  enable_incomplete_verification: false
+  device: cuda
+  sparse_interm: true
+  seed: 0
+  verbose: false
+model:
+  name: Customized("wrapped_model.py", "wrapped_model", model_path="ANONYMOUS_DIR/box_pushing/experiments/test_pushing_T_18_11_32/models/compression_round_0_model.pth",
+    setting=(8, 2, 1, 6))
+  input_shape:
+  - 1
+  - 12
+specification:
+  vnnlib_path: vnnlib/_18_11_32_5_0_10.vnnlib
+solver:
+  batch_size: 16
+  bound_prop_method: crown
+  # alpha-crown:
+  #   enable: false
+  #   lr_alpha: 0.5
+  #   iteration: 5
+  #   lr_decay: 0.75
+bab:
+  override_timeout: 180
+  max_iterations: 10 # 50
+  sort_domain_interval: 1
+  branching:
+    method: sb
+    candidates: 3
+    input_split:
+      enable: true
+      update_rhs_with_attack: true
+      sb_coeff_thresh: 0.01
+      softmax_temperature: 0.05
+      branching_heuristic: Customized("custom_branching_heuristics", "customized_input_split_branching")
+      ub_ratio: 0.75
+attack:
+  reject_bad: true
+  pgd_order: skip
+  pgd_early_stop: false
+  pgd_lr_decay: 0.8 # used when mode is not 'auto'
+  pgd_lr_decay_mode: 'auto'
+  pgd_lr_target: 0.01
+  pgd_auto_factor: 50
+  input_split_check_adv:
+    max_num_domains: 32
+    pgd_steps: 10 # 8
+    pgd_restarts: 32000
+find_feasible_solution:
+  enable: true
+  save_solution: true
+  show_solution: true
+  report_per_iter: true
+  save_solution_path: ANONYMOUS_DIR/box_pushing/crown_configs/pushing_T/output/crown_sol_18_11_32_5_0_10.txt
+  save_bab_path: ANONYMOUS_DIR/box_pushing/crown_configs/pushing_T/output/crown_bab_18_11_32_5_0_10.pkl
+  early_stop_patience: 200
+  use_upper_bound: true
+  warm_start: true
+  preload_path: ANONYMOUS_DIR/box_pushing/crown_configs/pushing_T/output/crown_warmstart_18_11_32_5_0_10.pt
+  pre_pgd_restarts: 32000
+  pre_pgd_steps: 3
+  sample_with_solution: true
+  bound_pgd_steps: 1
+  bound_pgd_restarts: 100000
+  bound_pgd_lr_decay: 0.5
+  bound_pgd_auto_factor: 10
+  bound_pgd_interval: 1
+  bound_mppi_noise_factor: 0.1
+  bound_mppi_weight_factor: 1
+  reject_bad_in_bound: true
+  fast_pass_bounding: True
+  final_ibp_bounding: True
+  record_distribution_for_branching: True
+  elite_ratio_for_branching: 0.01
+  min_n_elites_for_branching: 10
+  # stuck_patience: 5
+  # pruning_stuck_threshold: 0.4
+  # pruning_stuck_patience: 5
+  early_stop_bounding:
+    conditioner: Customized("custom_early_stop_condition_in_bounding", "customized_early_stop_conditioner_for_pile", max_relu_nodes=4, max_prop_nodes=0)
+    retry_patience: 10
+  search_func: Customized("custom_attacker_sampling", "cem_attack_with_general_specs")
+  # some items are covered by items in attack
+  mppi_config:
+    n_steps: 8
+    n_samples: 320000
+    noise_factor: 0.5 # 0.5
+    noise_decay: 0.9 # 0.8
+    weight_factor: 0.02 # 0.02
+    reject_bad: true
+    early_stop: false
+  cem_config:
+    n_steps: 50
+    n_samples: 320000
+    jitter_factor: 0.0005
+    elite_ratio: 0.0001
+    min_n_elites: 10
+    reject_bad: true
+    early_stop: false
+  pgd_config:
+    n_steps: 20
+    n_restarts: 80000
+    early_stop: false
+    lr_decay: 1
+    lr_decay_mode: 'auto'
+    lr_target: 0.1
+    restart_when_stuck: true
+    reject_bad: false

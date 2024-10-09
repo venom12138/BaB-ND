@@ -1,0 +1,216 @@
+task_name: rope_3d
+wandb: True
+# relative path to the root of the project
+# add cluster_root as prefix to be absolute path on cluster
+data_root: data/
+seed: 303049
+model: Rope_MLP
+short_push: True
+model_path: ""
+
+data:
+  max_n: 1 # max object number
+  max_tool: 1 # max tool number
+  max_nobj: 10 # max object points number after downsampling
+  max_ntool: 1 # max tool points
+  max_nR: 2000 # max relation number
+  fix_rope_end: True
+  state_dim: 30 # max_nobj*3
+  action_dim: 3 # len_x, len_y, len_z
+  # obj_size: 30
+  # pusher_size: [90, 5]
+  # num_episodes: 32000 # 64000
+  num_workers: 5 # 10
+  # episode_length: 12
+  training: True # determine the random seed to generate data
+  saving: True # save the data
+  visualizing: False # visualize the simulation
+  gif: False # generate gif
+  scale: 1 # normalize the data, (x,y)/scale
+  # use for hard negative mining
+  weight_factor: 1 # weight the data in the loss function, exp(w*diff)
+  weight_ub: 16 # exp(w*diff)<=weight_ub
+  hn_mode: "weight" # "weight" or "add"
+  hn_pick_mode: "threshold" # "threshold" or "percentage"
+  hn_th: 0.03 # with hn_pick_mode. threshold: pick error>=hn_th, percentage: pick top hn_th of the data
+  window_size: None
+  fps_radius_range: [0.18, 0.22]
+  adj_radius_range: [0.48, 0.52]
+  state_noise: 
+    train: 0.05
+    valid: 0.0
+    rollout: 0.0
+  phys_noise: 
+    train: 0.0
+    valid: 0.0
+    rollout: 0.0
+  ratio: 
+    train: [0, 0.9]
+    valid: [0.9, 1]
+  
+  obj: "rope" # "rigid_rope" 
+  wkspc_w: 4.0
+  headless: True
+  robot_type: 'xarm6' 
+  cont_motion: False
+  camera_view: 1 # 0, 1, 2, 3, 4
+  gripper: True
+  grasp: True
+  physics: "random" # "random" or "grid"
+  fps: True
+  fps_number: 2000
+
+real_exp:
+  enable: False
+  object_path: real_exp/object/box.obj
+  exp_id: 0
+  overwrite: False
+  sim_to_real_scale: 1000
+  time_limit: 30
+
+train:
+  reset_mask_prob_after_prune: True
+  enhance_method: "shit" # "diff" or "hn"
+  train_valid_ratio: 0.9
+  model_param:
+    neighbor_radius: 0.1
+    nf_particle: 128
+    nf_relation: 128
+    layers: 1 # at least 0
+  architecture: [96, 192, 192, 96] # specifies the layers and the hidden units in each layer, 576 in total
+  n_history: 1
+  n_rollout: 8 # 6 # 6
+  n_rollout_valid: 6 # 6
+  noise: 0.005 # std of the Gaussian noise to training data
+  gumbel: false
+  gumbel_settings:
+    temperature: 0.5
+    hard: True
+  robust: false
+  robust_settings:
+    epsilon: 0.002
+    alpha: 0.001
+    iters: 3
+  lr: 0.001
+  lr_params:
+    adam_beta1: 0.9
+  lr_scheduler:
+    type: "CosineAnnealingLR"
+    enabled: True
+  n_epoch_initial: 20
+  n_epoch_prune: 8
+  batch_size: 256
+  num_workers: 16
+  lam_l1_reg: 1.0e-3 # 2.0e-4 # l1 regularization
+  use_sp_loss: True
+  minimize_ID: True
+  ID_loss_weight: 0.005
+  lam_sp_loss: 1.0e-3
+  interval_loss_ratio: 0
+  online_training:
+    enable: True
+    sample_data_per_epoch: 2 # every epoch, sample data 
+    num_episodes: 3000
+  use_fixed_point_frame: False
+planning:
+  plot_only: False
+  horizon: 2
+  n_act_step: 1 # number of steps to act after each planning call
+  n_sim_step: 25
+  num_test: 5
+  open_loop: True
+  action_bound: 0.2
+  pusher_lo: [-2.5, -2.5, 2.2] # 50.0
+  pusher_hi: [2.5, 2.5, 4.0] # 750.0
+  timeout: 300
+  device: "cuda"
+  reload: False
+  method_types: ['MPPI', ]
+  # force_method_types: ['CROWN']
+  force_method_types: []
+  abcrown: crown_configs/pushing_rope/planning.yaml
+  abcrown_verbose: true # to get feasible solution in every iteration, only enable when open loop
+  use_empirical_bounds: false
+  enable_ub: true
+  model: 'before'
+  only_final_cost: False
+  fixed_horizon: false
+  use_prev_sol: false
+  warm_start_from_sampling: true
+  warm_start_method: 'MPPI'
+  cost_norm: 1
+  mppi:
+    n_sample: 64000
+    n_update_iter: 50
+    reward_weight: 20
+    noise_level: 'auto'
+    noise_type: 'normal'
+  cem:
+    n_sample: 64000
+    n_update_iter: 50
+    jitter_factor: 0.001
+    elite_ratio: 0.00001
+    min_n_elites: 10
+    # decentCEM
+    n_agents: 10
+  gd:
+    n_sample: 50000
+    n_update_iter: 8
+    lr: 0.001
+    noise_type: 'random'
+    n_restart_round: 2
+  model_path: None
+  cost_mode: 'target' # 'target' or 'abs'
+  cost_weight: 2.0
+  fix_others: False
+  gather_data: False
+  hierarchical: 
+    enable: True
+    horizon: 2 # to be modified in code
+    n_act_step: 1
+    only_final_cost: False
+    refer_pos: false
+    action_bound: 0.2
+    # mppi settings
+    n_sample: 32000
+    n_update_iter: 6
+    reward_weight: 20
+    noise_level: 'auto'
+    subgoal_interval: 1
+    num_subgoal: 14
+    buffer_round: 0
+    reach_threshold: 1
+
+visualize:
+  focus_relu_list: [576, 450, 256, 128, 64, 48, 32, 24, 16]
+  # outlier_threshold: 3
+  vis_lb: -100
+  vis_ub: 250
+  exp_dir: "closed_loop_planning_6_30"
+
+training: True # if not training, will disable Gumbel
+log:
+  log_per_iter: 200
+# verifier:
+#   num_tests: 5
+#   error_threshold: 1.0e-3
+
+# evaluate:
+#   model_name: 'round_0_best_valid_model.pth' #'best_valid_model_model.pth', compression_round_3_model.pth
+#   num_episodes_video: 1 # how many episodes in the generated video
+#   visualize_dynamics_model_times: 5 # how many times to visualize
+#   visualize_dynamics_model_horizon: 50 # how many steps to visualize
+#   evaluate_dynamics_model_steps: 20 # how many steps to evaluate
+#   evaluate_dynamics_model_rollout_times: 10 # how many times to evaluate dynamics model rollout times
+#   eval_prune_baseline: False
+
+# lr_scheduler:
+#     type: "ReduceLROnPlateau"
+#     enabled: True
+#     factor: 0.3
+#     patience: 3
+#     threshold: 1.0e-4
+#     threshold_mode: 'rel'
+#     cooldown: 0
+#     min_lr: 0
+#     eps: 1e-08

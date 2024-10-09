@@ -1,0 +1,158 @@
+experiment_name: ''
+wandb_id: 3
+task_name: box_pushing_latent
+wandb: True
+debug: False
+data_root: data/
+seed: 0
+model: MLP
+
+data:
+  state_dim: 8
+  action_dim: 2
+  obj_num: 1
+  box_size: 50
+  pusher_size: 15
+  num_episodes: 12000
+  num_workers: 48
+  episode_length: 20
+  training: True # determine the random seed to generate data
+  saving: True # save the data
+  visualizing: false # visualize the simulation
+  gif: false # generate gif
+  scale: 100 # normalize the data, (x,y)/scale
+  window_size: 400
+  augment: False
+  img_state: False
+  img_size: 128
+  enable_hnm: True
+  weight_factor: 1 # weight the data in the loss function, exp(w*diff)
+  weight_ub: 16 # exp(w*diff)<=weight_ub
+  hn_th: 0.003 # pick error>=hn_th,
+
+latent:
+  include_com: false
+  enable: True
+  enable_hnm: True
+  latent_dim: 64
+  img_size: 64
+  encoder_architecture: [16, 32]
+  kernel_size: 3
+  train_valid_ratio: 0.9
+  lr: 0.001
+  lr_params:
+    adam_beta1: 0.9
+  lr_scheduler:
+    type: "ReduceLROnPlateau"
+    enabled: True
+    factor: 0.3
+    patience: 3
+    threshold: 1.0e-4
+    threshold_mode: 'rel'
+    cooldown: 0
+    min_lr: 0
+    eps: 1e-08
+  n_epoch: 2
+  batch_size: 256
+  num_workers: 8
+  lam_l1_reg: 0 # l1 regularization
+  use_norm_reg: True 
+  norm_type: 2 # 1 or 2 or inf
+  lam_norm_reg: 1.0e-3 # norm regularization
+
+real_exp:
+  enable: False
+  object_path_list: ['real_exp/object/box.obj']
+  block_color_list: [[0,0,0]]
+  exp_id: 0
+  overwrite: False
+  sim_to_real_scale: 1000
+
+train:
+  train_valid_ratio: 0.9
+  architecture: [256, 512, 512, 256]
+  n_history: 1
+  n_rollout: 6
+  n_rollout_valid: 6
+  noise: 0.001 # std of the Gaussian noise to training data
+  robust: false
+  robust_settings:
+    epsilon: 0.002
+    alpha: 0.001
+    iters: 3
+  lr: 0.001
+  lr_params:
+    adam_beta1: 0.9
+  lr_scheduler:
+    type: "ReduceLROnPlateau"
+    enabled: True
+    factor: 0.3
+    patience: 1
+    threshold: 1.0e-4
+    threshold_mode: 'rel'
+    cooldown: 0
+    min_lr: 0
+    eps: 1e-08
+  n_epoch_initial: 40
+  batch_size: 256
+  num_workers: 8
+  lam_l1_reg: 0 # 2.0e-4 # l1 regularization
+  use_ibp_loss: False
+  lam_ibp_loss: 2.0e-5
+  online_training:
+    enable: False
+    sample_data_per_epoch: 2 # every epoch, sample data 
+    num_episodes: 3000
+
+planning:
+  plot_only: False
+  horizon: 6
+  n_act_step: 2 # number of steps to act after each planning call
+  n_sim_step: 12
+  num_test: 5
+  open_loop: True
+  action_bound: 0.3
+  timeout: 180
+  device: "cuda"
+  reload: True
+  method_types: ['MPPI', 'CROWN']
+  # force_method_types: ['CROWN']
+  force_method_types: []
+  abcrown: crown_configs/box_pushing/planning.yaml
+  abcrown_verbose: true # to get feasible solution in every iteration, only enable when open loop
+  use_empirical_bounds: true
+  enable_ub: true
+  model: 'before'
+  only_final_cost: True
+  fixed_horizon: false
+  use_prev_sol: false
+  warm_start_from_sampling: true
+  cost_norm: 1 # 1 or 2
+  mppi:
+    n_sample: 200000
+    n_update_iter: 50
+    reward_weight: 20
+    noise_level: 'auto'
+
+visualize:
+  # outlier_threshold: 3
+  # vis_lb: -100
+  # vis_ub: 250
+  exp_dir: "closed_loop_planning_6_30"
+
+training: True # if not training, will disable Gumbel
+log:
+  log_per_iter: 5
+# verifier:
+#   num_tests: 5
+#   error_threshold: 1.0e-3
+
+# evaluate:
+#   model_name: 'round_0_best_valid_model.pth' #'best_valid_model_model.pth', compression_round_3_model.pth
+#   num_episodes_video: 1 # how many episodes in the generated video
+#   visualize_dynamics_model_times: 5 # how many times to visualize
+#   visualize_dynamics_model_horizon: 50 # how many steps to visualize
+#   evaluate_dynamics_model_steps: 20 # how many steps to evaluate
+#   evaluate_dynamics_model_rollout_times: 10 # how many times to evaluate dynamics model rollout times
+#   eval_prune_baseline: False
+
